@@ -36,14 +36,14 @@ uses good whitespace, color choice, and contrast.
 display removed player, display results, and use of React for routing and 
 components. 
 - Service - Backend service with endpoints for
--- Login
--- Submitting Questions
--- Random Question Selection
--- Submitting Answers
--- Retrieving Answers
--- Submitting Votes
--- Retrieving Voting Results
--- Retrieving Results
+    - Login
+    - Submitting Questions
+    - Random Question Selection
+    - Submitting Answers
+    - Retrieving Answers
+    - Submitting Votes
+    - Retrieving Voting Results
+    - Retrieving Results
 - DB - Stores player data and game data in a database.
 - Authentication - Register and login players. Restrict gameplay and 
 participation to authenticated players only.
