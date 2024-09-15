@@ -17,7 +17,7 @@ lose. Otherwise, the remaining players win.
 
 ### Design
 
-![Gameplay Page Mockup](Odd-One-Out-MockUp.png)
+![Gameplay Page Mockup](Mockup.png)
 
 ### Key Features
 
