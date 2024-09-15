@@ -17,12 +17,16 @@ lose. Otherwise, the remaining players win.
 
 ### Design
 
+![Gameplay Page Mockup](Odd-One-Out-Mockup)
+
 ### Key Features
 
 - Secure login over HTTPS
 - Game Match-Making
 - Q/A Collection and Distribution
 - Ranked Choice Voting Algorithm
+- Restriction of gameplay to authenticated users
+- Non-interactive gameplay for voted-out players
 
 ### Technologies
 
