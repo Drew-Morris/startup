@@ -55,5 +55,15 @@ participation to authenticated players only.
 distributed to all players. As players submit answers, they are displayed to 
 other users in real time.
 
+## HTML Delivarable
 
+- HTML Pages - 6 HTML pages: login/register, about, home, load, play, stats.
+- Links - All pages have links to other pages except those requiring login.
+- Text - Each voting choice, prompt, response, timer is represented by a text 
+box.
+- Images - I created a logo for the site.
+- Login - Input boxes and buttons for login and registration/
+- DB - Login references database data. Prompts and responses pushed to and 
+pulled from the database.
+- WebSocket - Prompts, responses, and votes are distributed in real time.
 
