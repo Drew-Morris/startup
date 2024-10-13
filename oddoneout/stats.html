@@ -2,75 +2,119 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Scores</title>
-    <link rel="icon" href="favicon.ico" />
+    <link rel="icon" href="favicon.ico"/>
+    <link rel="stylesheet" href="main.css"/>
+    <link rel="stylesheet" href="scores.css"/>
+    <!-- Include bootstrap CSS framework -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+      crossorigin="anonymous"
+    />
+    <!-- Include Charts.css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/charts.css/dist/charts.min.css">
   </head>
-  <body>
-    <header>
-      <h1>Odd One Out</h1>
+  <body class="bg-dark text-light">
+    <!-- Use header, main, and footer elements to give semantic structure -->
+    <header class="container-fluid">
 
       <!-- Navigation elements -->
-      <!-- This navigation will be a hot bar at the top of the page -->
-      <nav>
+      <nav class="navbar fixed-top navbar-dark bg-dark text-dark">
+        <a class="navbar-brand ms-auto" href="index.html">Odd One Out</a>
         <!-- Menu is a semantic alternative to <ul> that represents an interaction -->
-        <menu>
-          <!-- This section will be left aligned -->
-          <li><a href="index.html">Home</a></li>
-          <li><a href="play.html">Play</a></li>
-          <li><a href="stats.html">Stats</a></li>
-          <li><a href="about.html">About</a></li>
-          <!-- This section will be right aligned -->
-          <li><span class="username">Username</a></li>
+        <menu class="navbar-nav ms-auto text-start">
+          <li class="nav-item">
+            <a class="nav-link" href="play.html">Play</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="stats.html">Stats</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="about.html">About</a>
+          </li>
         </menu>
       </nav>
-
-      <hr />
     </header>
 
-    <main>
-      <table>
-        <thead>
-          <tr>
-            <!-- # of games played -->
-            <th> Games Played</th>
-            <!-- # of games won -->
-            <th> Games Won</th>
-            <!-- # of games you lost by being fooled -->
-            <th> Bots Saved </th>
-            <!-- # of times you were voted out -->
-            <th> Captchas Failed </th>
-            <!-- # of games quit -->
-            <th> Connections Lost </th>
-            <!-- # of times you have voted -->
-            <th> Votes Cast</th>
-            <!-- # of AIs correctly identified -->
-            <th> Plugs Pulled </th>
-            <!-- # of people you voted out -->
-            <th> Innocents Killed</th>
-            
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>87</td>
-            <td>27</td>
-            <td>12</td>
-            <td>46</td>
-            <td>2</td>
-            <td>241</td>
-            <td>19</td>
-            <td>222</td>
-          </tr>
-        </tbody>
-      </table>
+    <main class="container-fluid bg-secondary text-center">
+      <div class="chart">
+        <!-- This will be a JS bar graph -->
+        <table class="table table-warning table-striped-columns">
+          <caption>Gameplay Stats</caption>
+          <thead class="table-dark">
+            <tr>
+              <!-- # of games played -->
+              <th> Games Played</th>
+              <!-- # of games won -->
+              <th> Games Won</th>
+              <!-- # of games you lost by being fooled -->
+              <th> Bots Saved </th>
+              <!-- # of times you were voted out -->
+              <th> Captchas Failed </th>
+              <!-- # of games quit -->
+              <th> Connections Lost </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="--size: 1">
+                <span class="data">87</span>
+              </td>
+              <td style="--size: calc(27 / 87)">
+                <span class="data">27</span>
+              </td>
+              <td style="--size: calc(12 / 87)">
+                <span class="data">12</span>
+              </td>
+              <td style="--size: calc(46 / 87)">
+                <span class="data">46</span>
+              </td>
+              <td style="--size: calc(2 / 87)">
+                <span class="data">2</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- This will be a JS bar graph -->
+      <div class="chart">
+        <table class="table table-warning table-striped-columns">
+          <caption>Gameplay Stats</caption>
+          <thead class="table-dark">
+            <tr>
+              <!-- # of times you have voted -->
+              <th> Votes Cast</th>
+              <!-- # of AIs correctly identified -->
+              <th> Plugs Pulled </th>
+              <!-- # of people you voted out -->
+              <th> Innocents Killed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="--size: 1">
+                <span class="data">241</span>
+              </td>
+              <td style="--size: calc(19 / 241)">
+                <span class="data">19</span>
+              </td>
+              <td style="--size: calc(222 / 241)">
+                <span class="data">222</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </main>
 
-    <footer>
-      <hr />
-      <span class="text-reset">Drew Morris</span>
-      <br />
-      <a href="https://github.com/Drew-Morris/startup">GitHub</a>
+    <footer class="bg-dark text-light">
+      <div class="container-fluid">
+        <span class="text-reset">Drew Morris</span>
+        <a class="text-reset" href="https://github.com/Drew-Morris/startup">GitHub</a>
+      </div>
     </footer>
   </body>
 </html>

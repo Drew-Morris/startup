@@ -1,0 +1,8 @@
+main {
+    flex-direction: row;
+}
+
+.chart {
+    float: left;
+    width: 50%;
+}
