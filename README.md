@@ -57,7 +57,7 @@ other users in real time.
 
 ## HTML Delivarable
 
-- HTML Pages - 6 HTML pages: login/register, about, home, load, play, stats.
+- HTML Pages - 5 HTML pages: about, home, load, play, stats.
 - Links - All pages have links to other pages except those requiring login.
 - Text - Each voting choice, prompt, response, timer is represented by a text 
 box.
@@ -67,3 +67,12 @@ box.
 pulled from the database.
 - WebSocket - Prompts, responses, and votes are distributed in real time.
 
+## CSS Deliverable
+
+- Header, Footer, Main - All present for all pages.
+- Navigation - Dropped underline and set the logo to be the home nav.
+- Responsive to Window Sizing - Looks good.
+- Application Elements - Good spacing and contrast. Relative location is 
+sufficient but could be improved.
+- Application Text Content - Readable and Consistent.
+- Application Images - Centered and Scaled for proper context.
