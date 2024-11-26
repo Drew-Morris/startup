@@ -1,16 +1,27 @@
-.picture-box {
-  height: calc(400px + 1em);
-  width: calc(400px + 1em);
-  margin-bottom: 1em;
-  padding: 0.5em 0.5em;
-  background: rgb(86, 89, 93);
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.message-container {
+  padding: 2em;
 }
 
-#picture img {
+.image-container {
+  position: relative;
+  display: inline-block;
+  bottom: 0%;
+  width: calc(400px + 1em);
+  height: calc(400px + 1em);
+}
+
+.load {
+  position: absolute;
+  z-index: 2;
+  right: 39%;
+  top: 39%;
+}
+
+.logo {
+  position: absolute;
+  z-index: 1;
   width: 100%;
-  height: 100%;
+  height: auto;
+  right: 0%;
+  top: 0%;
 }

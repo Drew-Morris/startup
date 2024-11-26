@@ -4,8 +4,9 @@ import { Unauthenticated } from './unauthenticated';
 import { Authenticated } from './authenticated';
 import { AuthState } from './authState';
 
-export function Login({ username, authState, onAuthChange }) {
+export function Login({ username, id, authState, onAuthChange }) {
   const [image, setImage] = React.useState(`logo.png`);
+
   return (
     <main className='container-fluid bg-secondary text-center'>
       <div>
@@ -19,15 +20,17 @@ export function Login({ username, authState, onAuthChange }) {
       <div>
         {authState === AuthState.Authenticated && (
           <Authenticated 
-            username={username} 
-            onLogout={() => onAuthChange(username, AuthState.Unauthenticated)} 
+            username={username}
+            id={id}
+            onLogout={() => onAuthChange(username, id, AuthState.Unauthenticated)} 
           />
         )}
         {authState === AuthState.Unauthenticated && (
           <Unauthenticated
             username={username}
-            onLogin={(loginUsername) => {
-              onAuthChange(loginUsername, AuthState.Authenticated);
+            id={id}
+            onLogin={(newUsername, newId) => {
+              onAuthChange(newUsername, newId, AuthState.Authenticated);
             }}
           />
         )}
