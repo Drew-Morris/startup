@@ -479,7 +479,7 @@ function App() {
           <Route path='*' element={<NotFound />} />
         </Routes>
 
-        <footer className='bg-dark text-dark text-muted'>
+        <footer className='bg-dark'>
           <div className='container-fluid'>
             <span className='text-reset'>Drew Morris</span>
             <a className='text-reset' href='https://github.com/Drew-Morris/startup'>
