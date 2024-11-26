@@ -76,3 +76,22 @@ pulled from the database.
 sufficient but could be improved.
 - Application Text Content - Readable and Consistent.
 - Application Images - Centered and Scaled for proper context.
+
+## React Deliverable
+
+- Bundled and Transpiled - done.
+- Components - login, lobby, play, stats, about are all components with mocks for 
+login.
+    - login - filling the fields and logging in takes you to the logged-in home 
+    page.
+    - database - displays the stats which are currently fake but will be pulled 
+    from and set in a database.
+    - WebSocket - I used the setInterval to produce fake player connections to 
+    the lobby and to produce fake interactions with the fake players which will 
+    be replaced with WebSocket messages later.
+    - logic - the question pool, answers map, kicked player ballot selection, and 
+    continue vote all are affected by user input.
+- Router - routing between login, lobby, play, and stats components.
+- Hooks - uses const timers instead of useState to track count down times. Uses 
+useEffect to manage gameState and authState dependent rendering and interactions. 
+Uses useEffect to manage notifiers and handlers.

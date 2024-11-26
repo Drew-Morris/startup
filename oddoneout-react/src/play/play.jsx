@@ -49,7 +49,7 @@ export function Play(props) {
   React.useEffect(() => {
     if (!timer.on) {
       timer.set(props.totalTime);
-      timer.begin();
+      timer.start();
     }
     const interval = setInterval(() => {
       let now = timer.now();
@@ -59,6 +59,7 @@ export function Play(props) {
         props.onUpdateTime(prev => timer.now());
         if (props.state === GameState.Results) {
           props.onEnd();
+          timer.stop();
           navigate('/login');
         }
         else {
@@ -92,6 +93,7 @@ export function Play(props) {
 
   async function quit() {
     props.onQuit();
+    timer.stop();
     navigate('/login');
   };
 

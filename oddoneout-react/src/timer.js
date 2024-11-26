@@ -1,31 +1,37 @@
 export class Timer {
   constructor(total = 0, on = false) {
     this.on = on;
-    this.start = Date.now(); 
+    this.begin = Date.now(); 
     this.total = total * 1000;
-  }
+    this.remaining = total * 1000;
+  };
 
   set(total) {
     this.total = total * 1000;
-  }
+  };
 
   reset() {
-    this.start = Date.now();
-  }
+    this.begin = Date.now();
+  };
 
-  begin() {
+  start() {
     this.on = true;
-    this.start = Date.now();
-  }
+    this.begin = Date.now();
+  };
+
+  stop() {
+    this.on = false;
+  };
 
   now() {
     if (!this.on) {
-      return Math.round(this.total / 1000);
+      return Math.round(this.remaining / 1000);
     }
     else {
-      const elapsed = Date.now() - this.start;
+      const elapsed = Date.now() - this.begin;
       const remaining = this.total - elapsed;
+      this.remaining = remaining;
       return Math.max(0, Math.round(remaining / 1000));
     }
-  }
+  };
 }

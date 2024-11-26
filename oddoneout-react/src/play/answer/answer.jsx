@@ -13,8 +13,14 @@ import { AnswerNotifier } from './answerNotifier';
 
 export function Answer(props) {
   React.useEffect(() => {
-    AnswerNotifier.addHandler(handleAnswerEvent);
+    let mounted = true;
+    AnswerNotifier.addHandler((event) => {
+      if (mounted) {
+        handleAnswerEvent(event);
+      }
+    });
     return () => {
+      mounted = false;
       AnswerNotifier.removeHandler(handleAnswerEvent);
     };
   }, []);

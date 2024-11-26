@@ -19,8 +19,14 @@ export function Lobby(props) {
   }, []);
 
   React.useEffect(() => {
-    LobbyNotifier.addHandler(handleLobbyEvent);
+    let mounted = true;
+    LobbyNotifier.addHandler((event) => {
+      if (mounted) {
+        handleLobbyEvent(event);
+      }
+    });
     return () => {
+      mounted = false;
       LobbyNotifier.removeHandler(handleLobbyEvent);
     }
   }, []);
@@ -29,19 +35,21 @@ export function Lobby(props) {
     const interval = setInterval(() => {
       if (props.size >= props.capacity && !timer.on) {
         timer.set(props.totalTime);
-        timer.begin();
+        timer.start();
       }
       if (timer.on) {
         const now = timer.now();
         setConnectionMessage(`Game Commencing In ${now}`);
         props.onUpdateTime((prev) => now);
         if (now === 0) {
+          timer.stop();
+          timer.reset();
           connect();
         }
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [props.time, props.startTime, props.size, props.capacity, props.onUpdateTime]);
+  }, [props.time, props.totalTime, props.size, props.capacity, props.onUpdateTime, props.onConnect, timer]);
 
   async function handleLobbyEvent(event) {
     if (event.type === LobbyEvent.Start) {

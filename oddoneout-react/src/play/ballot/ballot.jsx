@@ -19,8 +19,14 @@ export function Ballot(props) {
   }, [props.ballot]);
 
   React.useEffect(() => {
-    BallotNotifier.addHandler(handleBallotEvent);
+    let mounted = true;
+    BallotNotifier.addHandler((event) => {
+      if (mounted) {
+        handleBallotEvent(event);
+      }
+    });
     return () => {
+      mounted = false;
       BallotNotifier.removeHandler(handleBallotEvent);
     };
   }, []);

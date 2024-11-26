@@ -15,12 +15,6 @@ function randomChoice(array) {
   return [...array][Math.floor(Math.random() * [...array].length)];
 };
 
-function countVotes(votes) {
-  let count = 0;
-  [...votes].forEach((vote) => {count += vote ? 1 : -1});
-  return count;
-};
-
 function initAnswers(players) {
   const newAnswers = new Map();
   [...players].forEach((player) => {
@@ -71,6 +65,22 @@ function countBallots(ballots) {
   return randomChoice(maxIds);
 };
 
+function countVotes(votes) {
+  let count = 0;
+  [...votes].forEach((vote) => {count += vote ? 1 : -1});
+  return count;
+};
+
+function countActivePlayers(players) {
+  let count = 0;
+  [...players].forEach((player) => {
+    if (player.active) {
+      count += 1;
+    }
+  });
+  return count;
+}
+
 function App() {
   const [username, setUsername] = React.useState(localStorage.getItem('username') || '');
   const [id, setId] = React.useState(localStorage.getItem('id') || '');
@@ -86,9 +96,9 @@ function App() {
   const localQuestions = localStorage.getItem('questions');
   const [questions, setQuestions] = React.useState(localQuestions ? JSON.parse(localQuestions) : []);
   const localAnswers = localStorage.getItem('answers');
-  const [answers, setAnswers] = React.useState(localAnswers ? new Map(Object.Entries(JSON.parse(localAnswers))) : new Map());
+  const [answers, setAnswers] = React.useState(localAnswers ? new Map(Object.entries(JSON.parse(localAnswers))) : new Map());
   const localBallots = localStorage.getItem('ballots');
-  const [ballots, setBallots] = React.useState(localBallots ? new Map(Object.Entries(JSON.parse(localBallots))) : new Map());
+  const [ballots, setBallots] = React.useState(localBallots ? new Map(Object.entries(JSON.parse(localBallots))) : new Map());
   const [kickId, setKickId] = React.useState(localStorage.getItem('kickId') || '');
   const [kickAnswer, setKickAnswer] = React.useState(localStorage.getItem('kickAnswer') || '');
   const localVotes = localStorage.getItem('votes');
@@ -101,6 +111,7 @@ function App() {
   const [sent, setSent] = React.useState(false);
   const [quit, setQuit] = React.useState(false);
   const [kicked, setKicked] = React.useState(false);
+  const [botFound, setBotFound] = React.useState(false);
 
   const initGameTime = 30;
   const initLobbyTime = 5;
@@ -110,21 +121,28 @@ function App() {
 
   React.useEffect(() => {
     if (authState === AuthState.Authenticated) {
+      localStorage.setItem('gameState', JSON.stringify(gameState));
       localStorage.setItem('players', JSON.stringify(players));
+      localStorage.setItem('questions', JSON.stringify(questions));
+      localStorage.setItem('answers', JSON.stringify(Object.fromEntries(answers)));
+      localStorage.setItem('ballots', JSON.stringify(Object.fromEntries(ballots)));
+    } 
+    else {
+      localStorage.clear();
     }
-  }, [players, authState]);
+  }, [authState, gameState, players, questions, answers, ballots]);
 
-  React.useEffect(() => {
-    if (authState === AuthState.Unauthenticated) {
-      localStorage.removeItem('players');
+  function clear(logout = true) {
+    // Clear local storage first
+    localStorage.clear();
+
+    // Reset all states
+    if (logout) {
+      setUsername('');
+      setAuthState(AuthState.Unauthenticated);
     }
-  }, [authState]);
-
-  function clear() {
-    setUsername('');
     setId('');
     setBotId('');
-    setAuthState(AuthState.Unauthenticated);
     setGameState(null);
     setPlayers([]);
     setQuestions([]);
@@ -138,9 +156,9 @@ function App() {
     setSent(false);
     setQuit(false);
     setKicked(false);
+    setBotFound(false);
     setGameTime(initGameTime);
     setLobbyTime(initLobbyTime);
-    localStorage.clear();
   };
 
   function connectBot() {
@@ -265,21 +283,7 @@ function App() {
   
   async function onGameEnd() {
     sendStats();
-    setGameState(null);
-    setGamePrompt(initGamePrompt);
-    setQuestions([]);
-    setAnswers(new Map());
-    setBallots(new Map());
-    setVotes([]);
-    setKickId('');
-    setBotId('');
-    setKickAnswer('');
-    setActive(false);
-    setSent(false);
-    setKicked(false);
-    setQuit(false);
-    setId('');
-    setPlayers([]);
+    clear(false);
   };
 
   async function sendStats() {
@@ -287,12 +291,12 @@ function App() {
   };
   
   async function onAuthChange(newUsername, newId, newAuthState) {
-    setUsername(newUsername);
-    setId(newId);
-    setAuthState(newAuthState);
     if (newAuthState === newAuthState.Unauthenticated) {
       clear();
     }
+    setUsername(newUsername);
+    setId(newId);
+    setAuthState(newAuthState);
   };
 
   async function onNextGame() {
@@ -310,6 +314,9 @@ function App() {
       const newKickAnswer = answers.get(newKickId);
       const myPlayer = new Player(id, username, newKickId === id);
       const newPlayers = [];
+      if (newKickId === botId) {
+        setBotFound(true);
+      }
       if (newKickId === id) {
         setActive(false);
         player.forEach((player) => newPlayers.push(player));
@@ -337,12 +344,12 @@ function App() {
       setGameState(GameState.Vote);
     }
     else if (gameState === GameState.Vote) {
-      if (countVotes(votes) < 0) {
+      if (countVotes(votes) < 0 || countActivePlayers([...players, new Player(id, username, active)]) < 3) {
         setGamePrompt(initGamePrompt);
         setGameState(GameState.Question);
       }
       else {
-        setGamePrompt('Results');
+        setGamePrompt(`Results: The Bot Was ${botFound ? '' : 'Not'} Found`);
         setGameState(GameState.Results);
       }
       setVotes([]);
@@ -464,10 +471,7 @@ function App() {
               <Login
                 username={username}
                 authState={authState}
-                onAuthChange={(newUsername, newAuthState) => {
-                  setAuthState(newAuthState);
-                  setUsername(newUsername);
-                }}
+                onAuthChange={onAuthChange}
               />
             }
             exact

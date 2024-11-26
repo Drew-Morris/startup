@@ -8,8 +8,14 @@ export function Question(props) {
   const [text, setText] = React.useState('');
 
   React.useEffect(() => {
-    QuestionNotifier.addHandler(handleQuestionEvent);
+    let mounted = true;
+    QuestionNotifier.addHandler((event) => {
+      if (mounted) {
+        handleQuestionEvent(event);
+      }
+    });
     return () => {
+      mounted = false;
       QuestionNotifier.removeHandler(handleQuestionEvent);
     };
   }, []);

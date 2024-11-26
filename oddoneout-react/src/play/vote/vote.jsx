@@ -14,8 +14,14 @@ import { Player } from '../../player';
 export function Vote(props) {
 
   React.useEffect(() => {
-    VoteNotifier.addHandler(handleVoteEvent);
+    let mounted = true;
+    VoteNotifier.addHandler((event) => {
+      if (mounted) {
+        handleVoteEvent(event);
+      }
+    });
     return () => {
+      mounted = false;
       VoteNotifier.removeHandler(handleVoteEvent);
     }
   }, []);
