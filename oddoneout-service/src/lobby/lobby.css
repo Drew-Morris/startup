@@ -1,0 +1,27 @@
+.message-container {
+  padding: 2em;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+  bottom: 0%;
+  width: calc(400px + 1em);
+  height: calc(400px + 1em);
+}
+
+.load {
+  position: absolute;
+  z-index: 2;
+  right: 39%;
+  top: 39%;
+}
+
+.logo {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  right: 0%;
+  top: 0%;
+}
