@@ -1,6 +1,12 @@
+const dbConfig = require('./dbConfig.json');
+const openAIConfig = require('./openAIConfig.json');
+
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const express = require('express');
 const uuid = require('uuid');
 const app = express();
+const DB = require('./database.js');
 const openai = require('openai');
 
 class Stats {
@@ -39,6 +45,8 @@ class PrecisionStat {
   };
 };
 
+const authCookieName = 'token';
+
 // The service port. In production the front-end code is statically hosted by the service on the same port.
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
 
@@ -53,7 +61,7 @@ var apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
 const bot = new openai.OpenAI({
-  apiKey: '',
+  apiKey: openAIConfig.apiKey,
 });
 
 async function generateText(question) {
