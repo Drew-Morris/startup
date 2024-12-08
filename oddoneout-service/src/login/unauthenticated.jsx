@@ -9,11 +9,6 @@ export function Unauthenticated(props) {
   const [password, setPassword] = React.useState('');
   const [displayError, setDisplayError] = React.useState(null);
 
-  async function connectLocal() {
-    console.log('TODO: CONNECT LOCAL');
-    return 'FAKE_ID';
-  };
-
   async function login() {
     connect(`api/auth/login`);
   };
@@ -23,7 +18,7 @@ export function Unauthenticated(props) {
   };
 
   async function connect(endpoint) {
-    const responts = await fetch(
+    const response = await fetch(
       endpoint,
       {
         method: 'post',
@@ -38,8 +33,9 @@ export function Unauthenticated(props) {
     );
     if (response?.status === 200) {
       localStorage.setItem('username', username);
-      const newId = connectLocal();
-      props.onLogin(username, newId);
+      localStorage.setItem('id', response.id);
+      localStorage.setItem('token', response.token);
+      props.onLogin(username, response.id, response.token);
     }
     else {
       const body = await response.json();

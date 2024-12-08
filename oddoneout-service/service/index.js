@@ -1,12 +1,43 @@
-import { Stats } from '../src/stats';
-
 const express = require('express');
 const uuid = require('uuid');
 const app = express();
+const openai = require('openai');
 
-// The scores and users are saved in memory and disappear whenever the service is restarted.
-let users = {};
-let stats = new Stats();
+class Stats {
+  constructor() {
+    this.accuracy = new AccuracyStat();
+    this.precision = new PrecisionStat();
+  };
+};
+
+class AccuracyStat {
+  constructor() {
+    this.coarse = {
+      wins: 0,
+      losses: 0,
+    };
+    this.fine = {
+      botsRescued: 0,
+      captchasFailed: 0,
+      connectionsLost: 0,
+    };
+  };
+};
+
+class PrecisionStat {
+  constructor() {
+    this.coarse = {
+      humans: 0,
+      bots: 0,
+    };
+    this.fine = {
+      truePositives: 0,
+      falsePositives: 0,
+      trueNegatives: 0,
+      falseNegatives: 0,
+    };
+  };
+};
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
@@ -21,6 +52,38 @@ app.use(express.static('public'));
 var apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
+const bot = new openai.OpenAI({
+  apiKey: 'YOUR API KEY HERE',
+});
+
+async function generateText(question) {
+  try {
+    const botAnswer = await bot.chat.completions.create({
+      model: 'gpt-4o-mini', // or any other suitable model
+      messages: [
+        {
+          role: 'system',
+          content: 'You are playing a game where you have to convince a group of humans that you are human. Respond to questions using 5 words or less, using only one sentence, and mirror the tone of the question.',
+        },
+        {
+          role: 'user',
+          content: question,
+        }
+      ],
+    }).then(
+      (response) => response.choices[0].message.content
+    );
+    return botAnswer;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+// The scores and users are saved in memory and disappear whenever the service is restarted.
+let users = {};
+let stats = new Stats();
+let answer = null;
+
 // CreateAuth a new user
 apiRouter.post(
   '/auth/register', 
@@ -33,11 +96,13 @@ apiRouter.post(
       const user = { 
         email: req.body.email, 
         password: req.body.password, 
-        token: uuid.v4() 
+        id: uuid.v4(),
+        token: uuid.v4(),
       };
       users[user.email] = user;
       res.send({ 
-        token: user.token 
+        token: user.token,
+        id: user.id,
       });
     }
   }
@@ -51,7 +116,8 @@ apiRouter.post(
     if (user && req.body.password === user.password) {
       user.token = uuid.v4();
       res.send({ 
-        token: user.token 
+        token: user.token,
+        id: user.id,
       });
       return;
     }
@@ -84,7 +150,7 @@ apiRouter.post(
   '/stats/write/accuracy', 
   (req, res) => {
     stats = updateAccuracy(req.body, stats);
-    res.send(scores);
+    res.send(stats);
   }
 );
 
@@ -94,6 +160,30 @@ apiRouter.post(
   (req, res) => {
     stats = updatePrecision(req.body, stats);
     res.send(stats);
+  }
+);
+
+// Submit question to bot
+apiRouter.post(
+  '/bot/question',
+  async (req, res) => {
+    console.log(req.body.question);
+    answer = await generateText(req.body.question);
+    return;
+  }
+);
+
+// Receive answer from bot
+apiRouter.get(
+  '/bot/answer',
+  (req, res) => {
+    if (answer) {
+      res.send({
+        answer: answer,
+      });
+      return;
+    }
+    res.status(102).end();
   }
 );
 
@@ -126,6 +216,7 @@ function updateAccuracy(newStat, stats) {
     stats.accuracy.fine.captchasFailed += newStat.captchasFailed;
     stats.accuracy.fine.connectionsLost += newStat.connectionsLost;
   }
+  return stats;
 };
 
 // updateScores considers a new score for inclusion in the high scores.
@@ -135,6 +226,6 @@ function updatePrecision(newStat, stats) {
   stats.precision.fine.truePositives += newStat.truePositives;
   stats.precision.fine.falsePositives += newStat.falsePositives;
   stats.precision.fine.trueNegatives += newStat.trueNegatives;
-  stats.precision.fine.falseNegatives += newStats.falseNegatives;
+  stats.precision.fine.falseNegatives += newStat.falseNegatives;
   return stats;
 };

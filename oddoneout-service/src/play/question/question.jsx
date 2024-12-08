@@ -5,7 +5,6 @@ import { Player } from '../../player';
 import { QuestionNotifier } from './questionNotifier';
 
 export function Question(props) {
-  const [text, setText] = React.useState('');
 
   React.useEffect(() => {
     let mounted = true;

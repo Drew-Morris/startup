@@ -12,9 +12,9 @@ class AccuracyStat {
       losses: 0,
     };
     this.fine = {
-      this.botsSaved = 0,
-      this.captchasFailed = 0,
-      this.connectionsLost = 0,
+      botsRescued: 0,
+      captchasFailed: 0,
+      connectionsLost: 0,
     };
   };
 };

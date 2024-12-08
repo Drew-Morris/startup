@@ -95,3 +95,11 @@ login.
 - Hooks - uses const timers instead of useState to track count down times. Uses 
 useEffect to manage gameState and authState dependent rendering and interactions. 
 Uses useEffect to manage notifiers and handlers.
+
+## Service Deliverable
+
+- Node.js/Express HTTP Service - done!
+- Static Middleware for front-end - done!
+- Calls to 3rd part endpoints - done (openai)
+- Backend service endpoints - placeholders for login and stats
+- Frontend calls to service endpoints - done using fetch

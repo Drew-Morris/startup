@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, NavLink, Route, Routes, useNavigate } from 'react-router-dom';
+import { v4 } from 'uuid';
 import { Login } from './login/login';
 import { Lobby } from './lobby/lobby';
 import { Play } from './play/play';
@@ -84,6 +85,10 @@ function countActivePlayers(players) {
 function App() {
   const [username, setUsername] = React.useState(localStorage.getItem('username') || '');
   const [id, setId] = React.useState(localStorage.getItem('id') || '');
+  const [token, setToken] = React.useState(localStorage.getItem('token') || '');
+
+  const localStats = localStorage.getItem('stats');
+  const [stats, setStats] = React.useState(localStats ? JSON.parse(localPlayers) : null);
 
   const currentAuthState = username ? AuthState.Authenticated : AuthState.Unauthenticated;
   const [authState, setAuthState] = React.useState(currentAuthState);
@@ -109,7 +114,6 @@ function App() {
   const [gamePrompt, setGamePrompt] = React.useState(localStorage.getItem('gamePrompt') || initGamePrompt);
   const [active, setActive] = React.useState(id && id.length > 0);
   const [sent, setSent] = React.useState(false);
-  const [quit, setQuit] = React.useState(false);
   const [kicked, setKicked] = React.useState(false);
   const [botFound, setBotFound] = React.useState(false);
 
@@ -139,9 +143,10 @@ function App() {
     // Reset all states
     if (logout) {
       setUsername('');
+      setId('');
       setAuthState(AuthState.Unauthenticated);
     }
-    setId('');
+    setStats(null);
     setBotId('');
     setGameState(null);
     setPlayers([]);
@@ -154,7 +159,6 @@ function App() {
     setGamePrompt(initGamePrompt);
     setActive(false);
     setSent(false);
-    setQuit(false);
     setKicked(false);
     setBotFound(false);
     setGameTime(initGameTime);
@@ -162,9 +166,9 @@ function App() {
   };
 
   function connectBot() {
-    console.log("TODO: MAKE BOT");
-    setBotId('BOT');
-    return new Player("BOT", "BOT");
+    const newBotId = v4();
+    setBotId(newBotId);
+    return new Player(newBotId, "BOT");
   };
  
   async function onConnect() {
@@ -308,19 +312,11 @@ function App() {
     setVotes((prev) => [...prev, newVote]);
   };
 
-  async function onKick(newKickId) {
-
-  };
-
   async function onQuit() {
-    if (gameState !== GameState.Results) {
-      setQuit(true);
-      console.log("TODO: QUIT");
-    }
-    onGameEnd();
+    onGameEnd(gameState !== GameState.Results);
   };
   
-  async function onGameEnd() {
+  async function onGameEnd(quit = false) {
     fetch(
       `/api/stats/write/accuracy`,
       {
@@ -339,12 +335,28 @@ function App() {
     clear(false);
   };
 
-  async function onAuthChange(newUsername, newId, newAuthState) {
-    if (newAuthState === newAuthState.Unauthenticated) {
+  async function onAuthChange(newUsername, newId, newToken, newAuthState) {
+    if (newAuthState === AuthState.Unauthenticated) {
       clear();
+    }
+    else if (newAuthState === AuthState.Authenticated) {
+      await fetch(
+        '/api/stats/read',
+        {
+          method: 'get',
+          headers: {
+            'token': newToken,
+          },
+        }
+      ).then(
+        (response) => response.json()
+      ).then(
+        (newStats) => setStats(newStats)
+      );
     }
     setUsername(newUsername);
     setId(newId);
+    setToken(newToken);
     setAuthState(newAuthState);
   };
 
@@ -369,7 +381,21 @@ function App() {
   async function onNextGame() {
     setSent(false);
     if (gameState === GameState.Question) {
-      setGamePrompt(randomChoice(questions));
+      const newQuestion = randomChoice(questions);
+      fetch(
+        '/api/bot/question',
+        {
+          method: 'post',
+          body: JSON.stringify({
+            token: token,
+            question: newQuestion,
+          }),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      );
+      setGamePrompt(newQuestion);
       setQuestions([]);
       setGameState(GameState.Answer);
     }
@@ -380,7 +406,7 @@ function App() {
       const newKickId = countBallots(ballots);
       const newKickAnswer = answers.get(newKickId);
       const myPlayer = new Player(id, username, newKickId === id);
-      const newPlayers = onKick(newKickId);
+      const newPlayers = await onKick(newKickId);
       if (newKickId === botId) {
         setBotFound(true);
       }
@@ -453,6 +479,8 @@ function App() {
             element={
               <Login
                 username={username}
+                id={id}
+                token={token}
                 authState={authState}
                 onAuthChange={onAuthChange}
               />
@@ -480,9 +508,12 @@ function App() {
             element={
               <Play
                 username={username} 
+                id={id}
+                token={token}
                 players={players}
                 answers={answers}
                 kickId={kickId}
+                botId={botId}
                 kickAnswer={kickAnswer}
                 totalTime={initGameTime}
                 time={gameTime}
@@ -511,6 +542,7 @@ function App() {
             element={
               <Stats 
                 username={username} 
+                stats={stats}
               />
             } 
           />
@@ -525,6 +557,8 @@ function App() {
             element={
               <Login
                 username={username}
+                id={id}
+                token={token}
                 authState={authState}
                 onAuthChange={onAuthChange}
               />

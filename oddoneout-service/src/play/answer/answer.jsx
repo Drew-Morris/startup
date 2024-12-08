@@ -12,6 +12,41 @@ import { Player } from '../../player';
 import { AnswerNotifier } from './answerNotifier';
 
 export function Answer(props) {
+  const [received, setReceived] = React.useState(false);
+  const [sent, setSent] = React.useState(false);
+  const [botAnswer, setBotAnswer] = React.useState(localStorage.getItem('botAnswer') || '');
+
+  async function getBotAnswer() {
+    await fetch(
+      '/api/bot/answer',
+      {
+        method: 'get',
+        headers: {
+          token: props.token,
+        },
+      },
+    ).then(
+      (response) => response.json()
+    ).then(
+      (pojo) => {
+        setBotAnswer(pojo.answer);
+        setReceived(true);
+      }
+    );
+  };
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (!received) {
+        getBotAnswer();
+      }
+      else if (!sent) {
+        setSent(true);
+        props.onReceive(props.botId, botAnswer);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [props.botId, received, sent]);
 
   React.useEffect(() => {
     let mounted = true;
@@ -31,7 +66,7 @@ export function Answer(props) {
   };
 
   async function submit() {
-    QuestNotifier.broadcastEvent(
+    AnswerNotifier.broadcastEvent(
       props.id,
       props.answer
     );

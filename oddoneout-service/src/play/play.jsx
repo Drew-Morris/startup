@@ -111,6 +111,10 @@ export function Play(props) {
       )
     );
     props.onQuit();
+    setQuestion('');
+    setAnswer('');
+    setBallot(null);
+    setVote(false);
     timer.stop();
     navigate('/login');
   };
@@ -139,6 +143,8 @@ export function Play(props) {
         {props.state === GameState.Answer && (
           <Answer 
             id={props.id}
+            token={props.token}
+            botId={props.botId}
             answer={answer}
             ballot={ballot}
             answers={props.answers}
