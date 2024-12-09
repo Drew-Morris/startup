@@ -145,8 +145,8 @@ function App() {
       setUsername('');
       setId('');
       setAuthState(AuthState.Unauthenticated);
+      setStats(null);
     }
-    setStats(null);
     setBotId('');
     setGameState(null);
     setPlayers([]);
@@ -317,7 +317,7 @@ function App() {
   };
   
   async function onGameEnd(quit = false) {
-    fetch(
+    await fetch(
       `/api/stats/write/accuracy`,
       {
         method: 'post',
@@ -331,6 +331,19 @@ function App() {
           'Content-type': 'application/json'
         }
       }
+    );
+    await fetch(
+      `/api/stats/read`,
+      {
+        method: 'get',
+        headers: {
+          'token': token,
+        },
+      }
+    ).then(
+      (response) => response.json()
+    ).then(
+      (newStats) => setStats(newStats)
     );
     clear(false);
   };

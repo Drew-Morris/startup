@@ -9,42 +9,6 @@ const app = express();
 const DB = require('./database.js');
 const openai = require('openai');
 
-class Stats {
-  constructor() {
-    this.accuracy = new AccuracyStat();
-    this.precision = new PrecisionStat();
-  };
-};
-
-class AccuracyStat {
-  constructor() {
-    this.coarse = {
-      wins: 0,
-      losses: 0,
-    };
-    this.fine = {
-      botsRescued: 0,
-      captchasFailed: 0,
-      connectionsLost: 0,
-    };
-  };
-};
-
-class PrecisionStat {
-  constructor() {
-    this.coarse = {
-      humans: 0,
-      bots: 0,
-    };
-    this.fine = {
-      truePositives: 0,
-      falsePositives: 0,
-      trueNegatives: 0,
-      falseNegatives: 0,
-    };
-  };
-};
-
 const authCookieName = 'token';
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
@@ -88,26 +52,19 @@ async function generateText(question) {
 }
 
 // The scores and users are saved in memory and disappear whenever the service is restarted.
-let users = {};
-let stats = new Stats();
+let user = null;
+let stats = new DB.Stats();
 let answer = null;
 
 // CreateAuth a new user
 apiRouter.post(
   '/auth/register', 
   async (req, res) => {
-    const user = users[req.body.email];
-    if (user) {
+    if (await DB.getUser(req.body.email)) {
       res.status(409).send({ msg: 'Existing user' });
     } 
     else {
-      const user = { 
-        email: req.body.email, 
-        password: req.body.password, 
-        id: uuid.v4(),
-        token: uuid.v4(),
-      };
-      users[user.email] = user;
+      user = DB.createUser(req.body.email, req.body.password);
       res.send({ 
         token: user.token,
         id: user.id,
@@ -120,8 +77,15 @@ apiRouter.post(
 apiRouter.post(
   '/auth/login', 
   async (req, res) => {
-    const user = users[req.body.email];
-    if (user && req.body.password === user.password) {
+    user = await DB.getUser(req.body.email);
+    if (
+      user && await bcrypt.compare(
+        req.body.password, 
+        user.password
+      ).then(
+        (result) => result == true
+      )
+    ) {
       user.token = uuid.v4();
       res.send({ 
         token: user.token,
@@ -137,9 +101,9 @@ apiRouter.post(
 apiRouter.delete(
   '/auth/logout', 
   (req, res) => {
-    const user = Object.values(users).find((u) => u.token === req.body.token);
     if (user) {
       delete user.token;
+      user = null;
     }
     res.status(204).end();
   }
@@ -148,8 +112,18 @@ apiRouter.delete(
 // GetScores
 apiRouter.get(
   '/stats/read', 
-  (_req, res) => {
-    res.send(stats);
+  async (_req, res) => {
+    if (!user) {
+      res.status(401).send({ msg: 'Unauthorized' });
+      return;
+    }
+    const existingStats = await DB.getStats(user.id);
+    if (existingStats) {
+      stats = existingStats.stats;
+      res.send(stats);
+      return;
+    }
+    res.status(500).send({ msg: 'Stats not found' });
   }
 );
 
@@ -157,7 +131,12 @@ apiRouter.get(
 apiRouter.post(
   '/stats/write/accuracy', 
   (req, res) => {
+    if (!user) {
+      res.status(401).send({ msg: 'Unauthorized' });
+      return;
+    }
     stats = updateAccuracy(req.body, stats);
+    DB.updateStats(user.id, stats);
     res.send(stats);
   }
 );
@@ -166,7 +145,12 @@ apiRouter.post(
 apiRouter.post(
   '/stats/write/precision', 
   (req, res) => {
+    if (!user) {
+      res.status(401).send({ msg: 'Unauthorized' });
+      return;
+    }
     stats = updatePrecision(req.body, stats);
+    DB.updateStats(stats);
     res.send(stats);
   }
 );
@@ -175,7 +159,6 @@ apiRouter.post(
 apiRouter.post(
   '/bot/question',
   async (req, res) => {
-    console.log(req.body.question);
     answer = await generateText(req.body.question);
     return;
   }

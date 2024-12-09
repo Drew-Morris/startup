@@ -103,3 +103,13 @@ Uses useEffect to manage notifiers and handlers.
 - Calls to 3rd part endpoints - done (openai)
 - Backend service endpoints - placeholders for login and stats
 - Frontend calls to service endpoints - done using fetch
+
+## DB Deliverable
+
+- MongoDB Atlas database created - done!
+- Stores data in MongoDB - done!
+- User registration - Creates a new account in the database
+- Existing user - Stores game stats in the database for existing users
+- Credentials - Stores user and stats in MongoDB database
+- Restricted functionality - stats can only be retrived by authenticated users, 
+enforced on front-end and back-end
