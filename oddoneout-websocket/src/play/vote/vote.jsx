@@ -1,0 +1,62 @@
+import React from 'react';
+import Stack from '@mui/material/Stack';
+import Button from 'react-bootstrap/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
+import { VoteNotifier } from './voteNotifier';
+import { Player } from '../../player';
+
+export function Vote(props) {
+
+  React.useEffect(() => {
+    let mounted = true;
+    VoteNotifier.addHandler((event) => {
+      if (mounted) {
+        handleVoteEvent(event);
+      }
+    });
+    return () => {
+      mounted = false;
+      VoteNotifier.removeHandler(handleVoteEvent);
+    }
+  }, []);
+
+  async function handleVoteEvent(event) {
+    props.onReceive(event.value);
+  };
+
+  async function submit(vote) {
+    VoteNotifier.broadcastEvent(
+      props.id, 
+      vote
+    );
+    props.onSubmit(vote);
+  };
+
+  return (
+    <div>
+      <Stack
+        direction="row"
+        width="100%"
+        sx={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '1em',
+        }}
+        spacing={2}
+      >
+        <Button variant='success' onClick={() => submit(true)} disabled={!props.allow}>
+          Yes
+        </Button>
+        <Button variant='warning' onClick={() => submit(false)} disabled={!props.allow}>
+          No
+        </Button>
+      </Stack>
+    </div>
+  );
+}

@@ -113,3 +113,10 @@ Uses useEffect to manage notifiers and handlers.
 - Credentials - Stores user and stats in MongoDB database
 - Restricted functionality - stats can only be retrived by authenticated users, 
 enforced on front-end and back-end
+
+## WebSocket Deliverable
+
+- Backend listens for WebSocket Connections - done!
+- Frontend listens for WebSocket Connections - done!
+- Data sent over WebSocket Connections - questions, answers, etc
+- WebSocket data is displayed - questions, answers, etc displayed to user

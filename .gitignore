@@ -1,2 +1,4 @@
 oddoneout-database/service/dbConfig.json
 oddoneout-database/service/openAIConfig.json
+oddoneout-websocket/service/dbConfig.json
+oddoneout-websocket/service/openAIConfig.json
